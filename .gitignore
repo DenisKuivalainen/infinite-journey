@@ -1,0 +1,28 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/**/node_modules
+/automatic-web/.pnp
+automatic-web/.pnp.js
+
+# testing
+/automatic-web/coverage
+
+# production
+/automatic-web/build
+
+# misc
+automatic-web/.DS_Store
+automatic-web/.env.local
+automatic-web/.env.development.local
+automatic-web/.env.test.local
+automatic-web/.env.production.local
+
+automatic-web/npm-debug.log*
+automatic-web/yarn-debug.log*
+automatic-web/yarn-error.log*
+
+
+automatic-server/game.json
+
+/automatic-db/database

@@ -1,0 +1,16 @@
+{
+  "time": 0,
+  "timestamp": 0,
+  "players": {
+    "Jorge": {
+      "color": "#ffffff",
+      "actions": [],
+      "position": [300, 300],
+      "destination": [0, 0],
+      "active": {
+        "from": 33,
+        "to": 117
+      }
+    }
+  }
+}
