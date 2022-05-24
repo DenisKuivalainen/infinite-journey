@@ -21,6 +21,10 @@ const isResting = (time, from, to, [x, y]) =>
 
 const updateGame = () => {
   let game = getGameJson();
+  
+  game.time = game.time || 0
+  game.day = game.day || 0
+  game.year = game.year || 0
 
   if (game.time >= 119) {
     game.time = 0;
@@ -40,6 +44,7 @@ const updateGame = () => {
     Object.entries(game.players).map(([name, data]) => {
       const { active, actions, position } = data;
       const { from, to } = active;
+      const km = data.km || 0
 
       if (!actions.length) {
         log("New path");
@@ -57,11 +62,12 @@ const updateGame = () => {
         return [name, data];
       } else {
         log("Travel");
+        const distance = surface[position[1]][position[0]] === 0 ? 1 : 5
         const newActions = actions.slice(
-          surface[position[1]][position[0]] === 0 ? 1 : 5
+          distance
         );
 
-        return [name, { ...data, actions: newActions, position: actions[0] }];
+        return [name, { ...data, actions: newActions, position: actions[0], km: km + distance }];
       }
     })
   );

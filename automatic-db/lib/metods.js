@@ -68,9 +68,57 @@ const put = (db, table, data) => {
   return "Item recorded successfully.";
 };
 
-const update = () => {};
+const update = (db, table, data) => {
+  if (!fs.checkDB(db)) throw Error(`DB "${db}" does not exist.`);
+  if (!fs.checkTable(db, table))
+    throw Error(`Table "${table}" does not exist.`);
+  if (!data) throw Error(`Data not specified.`);
+  if (!data.id) throw Error(`ID not specified.`);
+  if (Object.keys(data).length < 2)
+    throw Error(`No update parameters specified.`);
 
-const _delete = () => {};
+  const dataInDB = fs.readTable(db, table);
+  if (!dataInDB) throw Error(`Failed to read from table "${table}".`);
+
+  const updatedObject = dataInDB.filter((d) => d.id === data.id)[0];
+  if (!updatedObject)
+    throw Error(
+      `Object with ID "${data.id}" does not exist in table "${table}".`
+    );
+
+  const restData = dataInDB.filter((d) => d.id !== data.id);
+
+  if (!fs.updateTable(db, table, [...restData, { ...updatedObject, ...data }]))
+    throw Error(`Failed to write to table "${table}".`);
+
+  return "Item updated successfully.";
+};
+
+const _delete = (db, table, searchFields) => {
+  if (!fs.checkDB(db)) throw Error(`DB "${db}" does not exist.`);
+  if (!fs.checkTable(db, table))
+    throw Error(`Table "${table}" does not exist.`);
+  const data = fs.readTable(db, table);
+  if (!data) throw Error(`Failed to read from table "${table}".`);
+
+  const fieldsArr = Object.entries(searchFields);
+
+  const afterDelete =
+    searchFields && fieldsArr.length
+      ? data.filter((d) => {
+          return !fieldsArr.every(([k, v]) => {
+            return d[k] === v;
+          });
+        })
+      : [];
+
+  if (!fs.updateTable(db, table, afterDelete))
+    throw Error(`Failed to write to table "${table}".`);
+  if (data.length - afterDelete.length === 0) return "No items were deleted.";
+  return data.length - afterDelete.length > 1
+    ? "Items deleted successfully."
+    : "Item deleted successfully.";
+};
 
 module.exports = {
   createDB,
