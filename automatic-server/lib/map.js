@@ -1,3 +1,6 @@
+const { getTowns } = require("./accessDB");
+const cache = require("memory-cache");
+
 const areas = {
   FIELD: "FIELD",
   SEASIDE: "SEASIDE",
@@ -11,6 +14,13 @@ const size = {
   SMALL: "SMALL",
   MEDIUM: "MEDIUM",
   BIG: "BIG",
+};
+
+const POPULATION = {
+  TOWER: [10, 50],
+  SMALL: [100, 500],
+  MEDIUM: [500, 1500],
+  BIG: [1500, 3000],
 };
 
 const country = {
@@ -546,8 +556,9 @@ const towns = [
     name: townNames[`${t.location[0]}_${t.location[1]}`],
   }));
 
-const getNewDestination = (oldLocation) => {
-  const newTowns = towns.filter(
+const getNewDestination = async (oldLocation) => {
+  const _towns = await getTowns();
+  const newTowns = _towns.filter(
     ({ location }) =>
       !(oldLocation[0] === location[0] && oldLocation[1] === location[1])
   );
@@ -555,20 +566,40 @@ const getNewDestination = (oldLocation) => {
   return newTowns[Math.floor(Math.random() * newTowns.length)];
 };
 
+const getMapData = async () => {
+  const _getTowns = async () => {
+    const _t = cache.get("towns");
+
+    if (_t) {
+      return typeof _t === "string" ? JSON.parse(_t) : _t;
+    } else {
+      const _towns = await getTowns();
+
+      //remove when add town updates
+      cache.put("towns", JSON.stringify(_towns));
+
+      return towns;
+    }
+  };
+  return {
+    towns: await _getTowns().then(ts => ts.map(t => {
+      const population = t.population
+
+      const _size = t.is_tower ? size.TOWER : size[Object.entries(POPULATION).filter(([s, [from, to]]) => population >= from && population < to).map(([s]) => s)[0]]
+      return {...t, size: _size}
+    })),
+    holes,
+    areas,
+    countryName,
+  };
+};
+
 module.exports = {
-  towns,
   holes,
   areas,
   size,
   country,
   countryName,
-  mapData: {
-    towns,
-    holes,
-    areas,
-    size,
-    country,
-    countryName,
-  },
+  getMapData,
   getNewDestination,
 };

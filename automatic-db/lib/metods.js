@@ -15,7 +15,7 @@ const deleteDB = (db) => {
 const createTable = (db, table) => {
   if (!fs.checkDB(db)) throw Error(`DB "${db}" does not exist.`);
   if (fs.checkTable(db, table)) throw Error(`Table "${table}" already exists.`);
-  if (!fs.createTable(dg, table)) throw Error("Failed to create table.");
+  if (!fs.createTable(db, table)) throw Error("Failed to create table.");
   return "Table successfully created.";
 };
 

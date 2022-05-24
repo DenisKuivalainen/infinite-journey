@@ -31,7 +31,8 @@ app.delete("/:db", deleteDB);
 app.use(express.static("build"));
 
 app.use((err, req, res, next) => {
-  res.status(400).send({ error: err.message });
+  res.status(400);
+  res.send({ error: err.message });
 });
 
 app.listen(port, () => {

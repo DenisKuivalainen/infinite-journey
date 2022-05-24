@@ -76,7 +76,7 @@ const updateTable = (db, table, data) => {
 
     fs.writeFileSync(
       makePath(`${db}/${makeTableName(table)}`),
-      JSON.stringify(data)
+      JSON.stringify(data, null, 2)
     );
     return true;
   } catch (e) {

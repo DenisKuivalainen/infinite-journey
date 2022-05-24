@@ -1,80 +1,92 @@
-const fs = require("fs");
 const getPath = require("./getPath");
 const log = require("./log");
 const { getNewDestination } = require("./map");
 const surface = require("../matrix/surface.json");
 const cache = require("memory-cache");
-
-const gameFile = `${__dirname}/../game.json`;
-
-const getGameJson = () => {
-  const gameBuffer = fs.readFileSync(gameFile);
-  return JSON.parse(gameBuffer.toString());
-};
-
-const writeGame = (obj) => {
-  fs.writeFileSync(gameFile, JSON.stringify(obj));
-};
+const db = require("./accessDB");
 
 const isResting = (time, from, to, [x, y]) =>
   (time < from || time > to) && surface[y][x] === 0;
 
-const updateGame = () => {
-  let game = getGameJson();
-  
-  game.time = game.time || 0
-  game.day = game.day || 0
-  game.year = game.year || 0
+const updateTime = async () => {
+  const now = await db.getTime();
+  let _now = Object.assign({}, now);
 
-  if (game.time >= 119) {
-    game.time = 0;
-    if (game.day >= 365) {
-      game.day = 0;
-      game.year++;
+  _now.time = _now.time || 0;
+  _now.day = _now.day || 0;
+  _now.year = _now.year || 0;
+
+  if (_now.time >= 119) {
+    _now.time = 0;
+    if (_now.day >= 365) {
+      _now.day = 0;
+      _now.year++;
     } else {
-      game.day++;
+      _now.day++;
     }
   } else {
-    game.time++;
+    _now.time++;
   }
 
-  game.timestamp = Date.now();
+  _now.timestamp = Date.now();
 
-  const players = Object.fromEntries(
-    Object.entries(game.players).map(([name, data]) => {
-      const { active, actions, position } = data;
-      const { from, to } = active;
-      const km = data.km || 0
+  await db.updateTime(_now);
 
-      if (!actions.length) {
-        log("New path");
-        const path = getPath(position, getNewDestination(position).location);
-        return [
-          name,
-          {
-            ...data,
-            actions: [...Array(10).fill(path[0]), ...path],
-            destination: path[path.length - 1],
-          },
-        ];
-      } else if (isResting(game.time, from, to, data.position)) {
-        log("Rest");
-        return [name, data];
-      } else {
-        log("Travel");
-        const distance = surface[position[1]][position[0]] === 0 ? 1 : 5
-        const newActions = actions.slice(
-          distance
-        );
+  cache.put("time", JSON.stringify(_now));
+};
 
-        return [name, { ...data, actions: newActions, position: actions[0], km: km + distance }];
-      }
-    })
-  );
-  game.players = players;
+const updatePlayes = async () => {
+  const { time } = await db.getTime();
+  const players = await db.getPlayers();
 
-  cache.put("game", parseGameJson(game));
-  writeGame(game);
+  let updatedPlayers = [];
+  for (const i in players) {
+    const data = players[i];
+    const { active, actions, position } = data;
+    const [from, to] = active;
+    const km = data.km || 0;
+
+    if (!actions.length) {
+      // Create new path
+      const path = getPath(
+        position,
+        await getNewDestination(position).then((res) => res.location)
+      );
+      updatedPlayers.push({
+        ...data,
+        actions: [
+          ...Array(Math.floor(Math.random() * (24 - 10) + 10)).fill(path[0]),
+          ...path,
+        ],
+        destination: path[path.length - 1],
+      });
+    } else if (isResting(time, from, to, position)) {
+      // Rest
+      updatedPlayers.push(data);
+    } else {
+      // Travel
+      const distance = surface[position[1]][position[0]] === 0 ? 1 : 5;
+      const newActions = actions.slice(distance);
+
+      updatedPlayers.push({
+        ...data,
+        actions: newActions,
+        position: actions[0],
+        km: km + distance,
+      });
+    }
+  }
+
+  for (const j in updatedPlayers) {
+    await db.updatePlayer(updatedPlayers[j]);
+  }
+
+  cache.put("players", updatedPlayers);
+};
+
+const updateGame = async () => {
+  await updateTime();
+  await updatePlayes();
 };
 
 const actions = {
@@ -95,19 +107,45 @@ const getTime = (time, timestamp, now) => {
   return { hours, minutes };
 };
 
-const parseGameJson = (gameJson) => {
-  const { players, time, timestamp } = gameJson;
+const getDate = (day, year) => {
+  return "";
+};
+
+const getGameData = async () => {
+  const _getPlayers = async () => {
+    const _p = cache.get("players");
+
+    if (_p) {
+      return typeof _p === "string" ? JSON.parse(_p) : _p;
+    } else {
+      return await db.getPlayers();
+    }
+  };
+
+  const _getTime = async () => {
+    const _t = cache.get("time");
+
+    if (_t) {
+      return typeof _t === "string" ? JSON.parse(_t) : _t;
+    } else {
+      return await db.getTime();
+    }
+  };
+
+  const players = await _getPlayers();
+  const { time, timestamp, year, day } = await _getTime();
   const now = Date.now();
 
   return {
     time: getTime(time, timestamp, now),
+    date: getDate(day, year),
     timestamp: now,
-    players: Object.entries(players).map(([name, data]) => {
+    players: players.map((data) => {
       const position = data.position;
       const action = isResting(
         time,
-        data.active.from,
-        data.active.to,
+        data.active[0],
+        data.active[1],
         data.position
       )
         ? actions.REST
@@ -118,7 +156,8 @@ const parseGameJson = (gameJson) => {
       return {
         position,
         action,
-        name,
+        traveled: data.km,
+        name: data.name,
         destination: data.destination,
         color: data.color,
       };
@@ -126,10 +165,8 @@ const parseGameJson = (gameJson) => {
   };
 };
 
-const getGameData = () => parseGameJson(getGameJson());
-
-const getCurrentTime = () => {
-  const { time, timestamp } = getGameJson();
+const getCurrentTime = async () => {
+  const { time, timestamp } = db.getTime();
 
   return getTime(time, timestamp);
 };

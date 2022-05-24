@@ -9,7 +9,7 @@ const putDB = (req, res) => {
    *
    * @apiParam {String} db DB name (should be unique)
    *
-   * @apiHeader {String} acess-key Acess key value
+   * @apiHeader {String} access-key Acess key value
    *
    * @apiSuccess {String} data  Success message
    * @apiSuccessExample Success response:
@@ -18,8 +18,10 @@ const putDB = (req, res) => {
    *       "data": "DB successfully created."
    *     }
    */
-  if (req.headers["acess-key"] !== process.env.ACCESS_KEY)
+  if (req.headers["access-key"] !== process.env.ACCESS_KEY) {
     res.send("Operation not permited");
+    return;
+  }
   res.send({ data: methods.createDB(req.params.db) });
 };
 
@@ -39,8 +41,10 @@ const deleteDB = (req, res) => {
    *       "data": "DB successfully deleted."
    *     }
    */
-  if (req.headers["acess-key"] !== process.env.ACCESS_KEY)
+  if (req.headers["access-key"] !== process.env.ACCESS_KEY) {
     res.send("Operation not permited");
+    return;
+  }
   res.send({ data: methods.deleteDB(req.params.db) });
 };
 
@@ -61,8 +65,10 @@ const putTable = (req, res) => {
    *       "data": "Table successfully created."
    *     }
    */
-  if (req.headers["acess-key"] !== process.env.ACCESS_KEY)
+  if (req.headers["access-key"] !== process.env.ACCESS_KEY) {
     res.send("Operation not permited");
+    return;
+  }
   res.send({ data: methods.createTable(req.params.db, req.params.table) });
 };
 
@@ -83,8 +89,10 @@ const deleteTable = (req, res) => {
    *       "data": "Table successfully deleted."
    *     }
    */
-  if (req.headers["acess-key"] !== process.env.ACCESS_KEY)
+  if (req.headers["access-key"] !== process.env.ACCESS_KEY) {
     res.send("Operation not permited");
+    return;
+  }
   res.send({ data: methods.deleteTable(req.params.db, req.params.table) });
 };
 
