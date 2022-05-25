@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useGame } from "./GameProvider";
+import moment from "moment";
 
 export const useGameTime = () => {
   const { game, loaded } = useGame();
@@ -42,11 +43,18 @@ export const useGameTime = () => {
 
 export default ({ z = 10 }) => {
   const [HH, MM] = useGameTime();
-  const { height, width, loaded } = useGame();
+  const { height, width, loaded, game } = useGame();
+  const year = game?.year,
+    date = game?.date,
+    month = game?.month;
 
   return (
     <div style={{ width, height, position: "absolute", zIndex: z }}>
       {HH < 10 ? `0${HH}` : HH}:{MM < 10 ? `0${MM}` : MM}
+      <br />
+      {`${moment(`${date}-${month}-${year}`, "DD-MM-YYYY").format(
+        "DD MMM YYYY"
+      )}`}
     </div>
   );
 };

@@ -3,7 +3,13 @@ import { useGame } from "./GameProvider";
 
 const PlayerInfo = ({ name }) => <p>{name}</p>;
 
-const TownInfo = ({ name }) => <p style={{ textAlign: "center" }}>{name}</p>;
+const TownInfo = ({ name, population }) => (
+  <p style={{ textAlign: "center" }}>
+    {name}
+    <br />
+    {population}
+  </p>
+);
 
 const Clicker = ({ data, onEnter, onLeave }) => {
   const { width, height } = useGame();
@@ -82,7 +88,7 @@ export default ({ z = 10 }) => {
   useEffect(() => {
     const townsData = map.towns.map((t) => ({
       id: `town_${t.id}`,
-      component: <TownInfo name={t.name} />,
+      component: <TownInfo name={t.name} population={t.population} />,
       location: t.location.map((l) => (l * height) / 750),
       size: [100, 10],
     }));

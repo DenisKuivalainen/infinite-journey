@@ -582,12 +582,22 @@ const getMapData = async () => {
     }
   };
   return {
-    towns: await _getTowns().then(ts => ts.map(t => {
-      const population = t.population
+    towns: await _getTowns().then((ts) =>
+      ts.map((t) => {
+        const population = t.population;
 
-      const _size = t.is_tower ? size.TOWER : size[Object.entries(POPULATION).filter(([s, [from, to]]) => population >= from && population < to).map(([s]) => s)[0]]
-      return {...t, size: _size}
-    })),
+        const _size = t.is_tower
+          ? size.TOWER
+          : size[
+              Object.entries(POPULATION)
+                .filter(
+                  ([s, [from, to]]) => population >= from && population < to
+                )
+                .map(([s]) => s)[0]
+            ];
+        return { ...t, size: _size };
+      })
+    ),
     holes,
     areas,
     countryName,

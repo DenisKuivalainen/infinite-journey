@@ -4,6 +4,7 @@ const { getNewDestination } = require("./map");
 const surface = require("../matrix/surface.json");
 const cache = require("memory-cache");
 const db = require("./accessDB");
+const moment = require("moment");
 
 const isResting = (time, from, to, [x, y]) =>
   (time < from || time > to) && surface[y][x] === 0;
@@ -107,8 +108,15 @@ const getTime = (time, timestamp, now) => {
   return { hours, minutes };
 };
 
-const getDate = (day, year) => {
-  return "";
+const getDate = (day) => {
+  const [date, month] = moment(`01-01-2020`, "DD-MM-YYYY")
+    .add(day, "days")
+    .format("DD-MM")
+    .split("-");
+  return {
+    month: parseInt(month, 10),
+    date: parseInt(date, 10),
+  };
 };
 
 const getGameData = async () => {
@@ -136,9 +144,13 @@ const getGameData = async () => {
   const { time, timestamp, year, day } = await _getTime();
   const now = Date.now();
 
+  const { date, month } = getDate(day);
+
   return {
     time: getTime(time, timestamp, now),
-    date: getDate(day, year),
+    date,
+    month,
+    year,
     timestamp: now,
     players: players.map((data) => {
       const position = data.position;
