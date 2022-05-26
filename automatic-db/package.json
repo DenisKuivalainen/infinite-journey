@@ -8,8 +8,11 @@
     "docs:template": "git clone https://github.com/jodacame/apidocjs-template-dark-Slate-Inspiration-.git",
     "docs": "apidoc -i lib -o build -t apidocjs-template-dark-Slate-Inspiration-/template",
     "init-db": "node init.js",
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "dev:nodemon": "nodemon server.js",
+    "dev": "rm -rf apidocjs-template-dark-Slate-Inspiration- && git clone https://github.com/jodacame/apidocjs-template-dark-Slate-Inspiration-.git && apidoc -i lib -o build -t apidocjs-template-dark-Slate-Inspiration-/template && node server.js",
+
+    "build": "rm -rf dist && rm -rf apidocjs-template-dark-Slate-Inspiration- && git clone https://github.com/jodacame/apidocjs-template-dark-Slate-Inspiration-.git && apidoc -i lib -o build -t apidocjs-template-dark-Slate-Inspiration-/template && webpack --mode development",
+    "start": "node ./dist/server.js"
   },
   "author": "",
   "license": "ISC",
@@ -21,5 +24,15 @@
     "express": "^4.18.1",
     "nodemon": "^2.0.16",
     "prettier": "^2.6.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
+    "babel-loader": "^8.2.5",
+    "html-loader": "^3.1.0",
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2",
+    "webpack-node-externals": "^3.0.0"
   }
 }
