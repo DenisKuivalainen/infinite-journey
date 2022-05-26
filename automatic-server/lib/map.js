@@ -573,18 +573,14 @@ const getMapData = async () => {
     if (_t) {
       return typeof _t === "string" ? JSON.parse(_t) : _t;
     } else {
-      const _towns = await getTowns();
-
-      //remove when add town updates
-      cache.put("towns", JSON.stringify(_towns));
-
-      return towns;
+      return await getTowns();
     }
   };
+
   return {
     towns: await _getTowns().then((ts) =>
       ts.map((t) => {
-        const population = t.population;
+        const population = Math.round(t.population);
 
         const _size = t.is_tower
           ? size.TOWER

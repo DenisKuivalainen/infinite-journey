@@ -8,7 +8,7 @@ export const useGameTime = () => {
     timestamp = game?.timestamp;
 
   const [gameTime, setTime] = useState([0, 0]);
-  const [ts, setTs] = useState(0);
+  const [ts, setTs] = useState(Date.now());
 
   const getTime = (now) => {
     if (!time || !timestamp) return;
@@ -25,7 +25,7 @@ export const useGameTime = () => {
 
   const loopGetTime = async () => {
     while (true) {
-      setTs(Date.now());
+      setTs(Date.now())
       await new Promise((res) => setTimeout(res, 1000));
     }
   };

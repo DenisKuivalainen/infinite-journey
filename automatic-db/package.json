@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "pretty": "prettier --write .",
-    "docs": "apidoc -i lib -o build",
+    "docs:template": "git clone https://github.com/jodacame/apidocjs-template-dark-Slate-Inspiration-.git",
+    "docs": "apidoc -i lib -o build -t apidocjs-template-dark-Slate-Inspiration-/template",
     "init-db": "node init.js",
     "dev": "nodemon index.js",
     "start": "node index.js"
@@ -13,8 +14,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "apidoc": "^0.51.1",
+    "apidoc": "0.25.0",
     "body-parser": "^1.20.0",
+    "dash-apidoc-template": "^1.0.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "nodemon": "^2.0.16",

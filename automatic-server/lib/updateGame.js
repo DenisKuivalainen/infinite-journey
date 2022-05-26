@@ -5,6 +5,7 @@ const surface = require("../matrix/surface.json");
 const cache = require("memory-cache");
 const db = require("./accessDB");
 const moment = require("moment");
+const { getSeason, getDeathRatio, getBirthRatio } = require("./season");
 
 const isResting = (time, from, to, [x, y]) =>
   (time < from || time > to) && surface[y][x] === 0;
@@ -29,11 +30,52 @@ const updateTime = async () => {
     _now.time++;
   }
 
+  if(_now.time % 10 === 0) {
+    await changePopulation(_now.day)
+  }
+
   _now.timestamp = Date.now();
+
+  _now.season = getSeason(_now.day);
 
   await db.updateTime(_now);
 
   cache.put("time", JSON.stringify(_now));
+};
+
+const changePopulation = async (day) => {
+  const randomIntFromInterval = (min, max) => {
+    return Math.floor(Math.random() * (max - min) + min);
+  };
+
+  const towns = await db.getTowns();
+
+  const newTowns = towns.map((t) => {
+    const deaths =
+      randomIntFromInterval(...getDeathRatio(day)) / (366 * 12 * 1000);
+    const births =
+      randomIntFromInterval(...getBirthRatio(day)) / (366 * 12 * 1000);
+
+    if (t.tower) {
+      return {
+        ...t,
+        population:
+          Math.round((t.population - deaths) * 1000000000) / 1000000000,
+      };
+    } else {
+      return {
+        ...t,
+        population:
+          Math.round((t.population - deaths + births) * 1000000000) /
+          1000000000,
+      };
+    }
+  });
+
+  for (const i in newTowns) {
+    await db.updateTown(newTowns[i]);
+  }
+  cache.put("towns", JSON.stringify(newTowns));
 };
 
 const updatePlayes = async () => {
@@ -141,7 +183,7 @@ const getGameData = async () => {
   };
 
   const players = await _getPlayers();
-  const { time, timestamp, year, day } = await _getTime();
+  const { time, timestamp, year, day, season } = await _getTime();
   const now = Date.now();
 
   const { date, month } = getDate(day);
@@ -151,6 +193,7 @@ const getGameData = async () => {
     date,
     month,
     year,
+    season,
     timestamp: now,
     players: players.map((data) => {
       const position = data.position;

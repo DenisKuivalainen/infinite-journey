@@ -33,6 +33,8 @@ const deleteDB = (req, res) => {
    *  @apiName deleteDB
    *
    * @apiParam {String} db DB name (should exist)
+   * 
+   * @apiHeader {String} access-key Acess key value
    *
    * @apiSuccess {String} data  Success message
    * @apiSuccessExample Success response:
@@ -57,6 +59,8 @@ const putTable = (req, res) => {
    *
    * @apiParam {String} db DB name (should exist)
    * @apiParam {String} table Table name (should be unique)
+   * 
+   * @apiHeader {String} access-key Acess key value
    *
    * @apiSuccess {String} data  Success message
    * @apiSuccessExample Success response:
@@ -81,6 +85,8 @@ const deleteTable = (req, res) => {
    *
    * @apiParam {String} db DB name (should exist)
    * @apiParam {String} table Table name (should exist)
+   * 
+   * @apiHeader {String} access-key Acess key value
    *
    * @apiSuccess {String} data  Success message
    * @apiSuccessExample Success response:
