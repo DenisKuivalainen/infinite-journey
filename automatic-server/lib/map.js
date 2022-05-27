@@ -567,15 +567,7 @@ const getNewDestination = async (oldLocation) => {
 };
 
 const getMapData = async () => {
-  const _getTowns = async () => {
-    const _t = cache.get("towns");
-
-    if (_t) {
-      return typeof _t === "string" ? JSON.parse(_t) : _t;
-    } else {
-      return await getTowns();
-    }
-  };
+  const _getTowns = require("./getters").getTowns;
 
   return {
     towns: await _getTowns().then((ts) =>

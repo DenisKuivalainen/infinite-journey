@@ -4,7 +4,7 @@ import { useGame } from "./GameProvider";
 import ImageFilter from "react-image-filter";
 
 export default ({ z = 10 }) => {
-  const { height, width, loaded, game } = useGame();
+  const { height, width, game } = useGame();
 
   const [HH, MM] = useGameTime();
   const [[r, g, b], setFilter] = useState([1, 1, 1]);
@@ -49,7 +49,7 @@ export default ({ z = 10 }) => {
   return (
     <div style={{ width, height, position: "absolute", zIndex: z }}>
       <ImageFilter
-        image="/pictures/map.jpg"
+        image={`/pictures/map/${game.season}.jpg`}
         filter={filter}
         style={{ width, height }}
       />

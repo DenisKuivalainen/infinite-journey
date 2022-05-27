@@ -162,25 +162,9 @@ const getDate = (day) => {
 };
 
 const getGameData = async () => {
-  const _getPlayers = async () => {
-    const _p = cache.get("players");
+  const _getPlayers = require('./getters').getPlayers;
 
-    if (_p) {
-      return typeof _p === "string" ? JSON.parse(_p) : _p;
-    } else {
-      return await db.getPlayers();
-    }
-  };
-
-  const _getTime = async () => {
-    const _t = cache.get("time");
-
-    if (_t) {
-      return typeof _t === "string" ? JSON.parse(_t) : _t;
-    } else {
-      return await db.getTime();
-    }
-  };
+  const _getTime = require("./getters").getTime;
 
   const players = await _getPlayers();
   const { time, timestamp, year, day, season } = await _getTime();

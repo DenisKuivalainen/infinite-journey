@@ -47,11 +47,15 @@ const getPathfindingMatrix = (arr) =>
 const saveToFile = (arr, name) =>
   fs.writeFileSync(`${__dirname}/../matrix/${name}.json`, JSON.stringify(arr));
 
-const recordMatixes = (arr) => {
-  saveToFile(getPathfindingMatrix(arr), "pathfinding");
-  saveToFile(getSurface(arr), "surface");
+const recordMatixes = (s) => (arr) => {
+  saveToFile(getPathfindingMatrix(arr), `pathfinding/${s}`);
+  saveToFile(getSurface(arr), `surface/${s}`);
 };
 
-pixels(`${__dirname}/../pictures/map.png`)
+const generate = (s) => pixels(`${__dirname}/../pictures/${s}.png`)
   .then(getSurfaceMatrix)
-  .then(recordMatixes);
+  .then(recordMatixes(s));
+
+for (let i = 1; i < 20; i++) {
+  generate(i)
+}
