@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 const makePath = (path = "") => `${__dirname}/../database/${path}`;
-const makeTableName = (n) => `${n}.adb`;
+const makeTableName = (n) => `${n}.sob`;
 
 const checkDB = (db) => {
   try {
@@ -76,7 +76,7 @@ const updateTable = (db, table, data) => {
 
     fs.writeFileSync(
       makePath(`${db}/${makeTableName(table)}`),
-      JSON.stringify(data, null, 2)
+      JSON.stringify(data)
     );
     return true;
   } catch (e) {
@@ -99,7 +99,9 @@ module.exports = {
   checkDB,
   checkTable,
   createDB,
+  deleteDB,
   createTable,
+  deleteTable,
   updateTable,
   readTable,
 };

@@ -10,6 +10,7 @@ const putDB = (req, res) => {
    * @apiParam {String} db DB name (should be unique)
    *
    * @apiHeader {String} access-key Acess key value
+   * @apiHeader {String} x-api-key Api key value
    *
    * @apiSuccess {String} data  Success message
    * @apiSuccessExample Success response:
@@ -33,8 +34,9 @@ const deleteDB = (req, res) => {
    *  @apiName deleteDB
    *
    * @apiParam {String} db DB name (should exist)
-   * 
+   *
    * @apiHeader {String} access-key Acess key value
+   * @apiHeader {String} x-api-key Api key value
    *
    * @apiSuccess {String} data  Success message
    * @apiSuccessExample Success response:
@@ -59,8 +61,9 @@ const putTable = (req, res) => {
    *
    * @apiParam {String} db DB name (should exist)
    * @apiParam {String} table Table name (should be unique)
-   * 
+   *
    * @apiHeader {String} access-key Acess key value
+   * @apiHeader {String} x-api-key Api key value
    *
    * @apiSuccess {String} data  Success message
    * @apiSuccessExample Success response:
@@ -85,8 +88,9 @@ const deleteTable = (req, res) => {
    *
    * @apiParam {String} db DB name (should exist)
    * @apiParam {String} table Table name (should exist)
-   * 
+   *
    * @apiHeader {String} access-key Acess key value
+   * @apiHeader {String} x-api-key Api key value
    *
    * @apiSuccess {String} data  Success message
    * @apiSuccessExample Success response:
@@ -104,15 +108,17 @@ const deleteTable = (req, res) => {
 
 const getItem = (req, res) => {
   /**
-   * @api {post} /:db/:table/get Get items
+   * @api {post} /:db/:table/get Get object(s)
    * @apiVersion 1.0.0
-   * @apiGroup Items
-   *  @apiName getItem
+   * @apiGroup Object
+   *  @apiName getObject
    *
    * @apiParam {String} db DB name (should exist)
    * @apiParam {String} table Table name (should exist)
    *
-   * @apiBody ...params Any params that should be present in searched items. If no params specified, endpoint will return all object of table
+   * @apiHeader {String} x-api-key Api key value
+   *
+   * @apiBody [...params] Any params that should be present in searched items. If no params specified, endpoint will return all object of the table
    *
    * @apiSuccess {Array} data  Array of found objects
    * @apiSuccessExample Success response:
@@ -128,14 +134,76 @@ const getItem = (req, res) => {
 };
 
 const putItem = (req, res) => {
+  /**
+   * @api {put} /:db/:table/put Put object
+   * @apiVersion 1.0.0
+   * @apiGroup Object
+   *  @apiName putObject
+   *
+   * @apiParam {String} db DB name (should exist)
+   * @apiParam {String} table Table name (should exist)
+   *
+   * @apiHeader {String} x-api-key Api key value
+   *
+   * @apiBody {String} id Unique ID of item
+   * @apiBody [...params] Any params that should be present created object
+   *
+   * @apiSuccess {String} data  Success message
+   * @apiSuccessExample Success response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "data": "Item created successfully."
+   *     }
+   */
   res.send({ data: methods.put(req.params.db, req.params.table, req.body) });
 };
 
 const updateItem = (req, res) => {
+  /**
+   * @api {update} /:db/:table/update Update object
+   * @apiVersion 1.0.0
+   * @apiGroup Object
+   *  @apiName updateObject
+   *
+   * @apiParam {String} db DB name (should exist)
+   * @apiParam {String} table Table name (should exist)
+   *
+   * @apiHeader {String} x-api-key Api key value
+   *
+   * @apiBody {String} id Unique ID of item
+   * @apiBody [...params] Any params that should be updated in the object
+   *
+   * @apiSuccess {String} data  Success message
+   * @apiSuccessExample Success response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "data": "Item created successfully."
+   *     }
+   */
   res.send({ data: methods.update(req.params.db, req.params.table, req.body) });
 };
 
 const deleteItem = (req, res) => {
+  /**
+   * @api {delete} /:db/:table/delete Delete object
+   * @apiVersion 1.0.0
+   * @apiGroup Object
+   *  @apiName deleteObject
+   *
+   * @apiParam {String} db DB name (should exist)
+   * @apiParam {String} table Table name (should exist)
+   *
+   * @apiHeader {String} x-api-key Api key value
+   *
+   * @apiBody [...params] Any params that should be present in searched items. If no params specified, endpoint will delete all object of the table
+   *
+   * @apiSuccess {String} data  Success message
+   * @apiSuccessExample Success response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "data": "Item created successfully."
+   *     }
+   */
   res.send({ data: methods.delete(req.params.db, req.params.table, req.body) });
 };
 

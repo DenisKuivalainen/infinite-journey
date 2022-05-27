@@ -16,6 +16,14 @@ const app = express();
 const port = 4000;
 
 app.use(bodyParser.json());
+app.use((req, res, next) => {
+  if (req.baseUrl !== "" && req.headers["x-api-key"] !== process.env.API_KEY) {
+    res.status(403);
+    res.send({ error: "Api key not specified" });
+    return;
+  }
+  return next();
+});
 
 app.post("/:db/:table/get", getItem);
 app.put("/:db/:table/put", putItem);

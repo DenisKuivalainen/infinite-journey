@@ -1,0 +1,354 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Simple Object Base",
+    "version": "1.0.0",
+    "description": ""
+  },
+  "paths": {
+    "/{db}": {
+      "delete": {
+        "tags": ["DB"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DB name (should exist)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "String",
+              "items": { "$ref": "#/definitions/deleteDB" }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["DB"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DB name (should be unique)"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/putDB" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "String",
+              "items": { "$ref": "#/definitions/putDB" }
+            }
+          }
+        }
+      }
+    },
+    "/{db}/{table}/delete": {
+      "delete": {
+        "tags": ["Object"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DB name (should exist)"
+          },
+          {
+            "name": "table",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Table name (should exist)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "String",
+              "items": { "$ref": "#/definitions/deleteObject" }
+            }
+          }
+        }
+      }
+    },
+    "/{db}/{table}/get": {
+      "post": {
+        "tags": ["Object"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DB name (should exist)"
+          },
+          {
+            "name": "table",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Table name (should exist)"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/getObject" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/data" }
+            }
+          }
+        }
+      }
+    },
+    "/{db}/{table}/put": {
+      "put": {
+        "tags": ["Object"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DB name (should exist)"
+          },
+          {
+            "name": "table",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Table name (should exist)"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/putObject" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "String",
+              "items": { "$ref": "#/definitions/putObject" }
+            }
+          }
+        }
+      }
+    },
+    "/{db}/{table}/update": {
+      "update": {
+        "tags": ["Object"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DB name (should exist)"
+          },
+          {
+            "name": "table",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Table name (should exist)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "String",
+              "items": { "$ref": "#/definitions/updateObject" }
+            }
+          }
+        }
+      }
+    },
+    "/{db}/{table}": {
+      "delete": {
+        "tags": ["Table"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DB name (should exist)"
+          },
+          {
+            "name": "table",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Table name (should exist)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "String",
+              "items": { "$ref": "#/definitions/deleteTable" }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Table"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DB name (should exist)"
+          },
+          {
+            "name": "table",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Table name (should be unique)"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/putTable" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "String",
+              "items": { "$ref": "#/definitions/putTable" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "deleteDB": {
+      "properties": {
+        "db": { "type": "string", "description": "DB name (should exist)" },
+        "data": { "type": "string", "description": "Success message" }
+      },
+      "required": ["db", "data"]
+    },
+    "putDB": {
+      "properties": {
+        "db": { "type": "string", "description": "DB name (should be unique)" },
+        "data": { "type": "string", "description": "Success message" }
+      },
+      "required": ["db", "data"]
+    },
+    "deleteObject": {
+      "properties": {
+        "db": { "type": "string", "description": "DB name (should exist)" },
+        "table": {
+          "type": "string",
+          "description": "Table name (should exist)"
+        },
+        "data": { "type": "string", "description": "Success message" }
+      },
+      "required": ["db", "table", "data"]
+    },
+    "getObject": {
+      "properties": {
+        "db": { "type": "string", "description": "DB name (should exist)" },
+        "table": {
+          "type": "string",
+          "description": "Table name (should exist)"
+        }
+      },
+      "required": ["db", "table"]
+    },
+    "data": { "properties": {}, "required": [] },
+    "putObject": {
+      "properties": {
+        "db": { "type": "string", "description": "DB name (should exist)" },
+        "table": {
+          "type": "string",
+          "description": "Table name (should exist)"
+        },
+        "data": { "type": "string", "description": "Success message" }
+      },
+      "required": ["db", "table", "data"]
+    },
+    "updateObject": {
+      "properties": {
+        "db": { "type": "string", "description": "DB name (should exist)" },
+        "table": {
+          "type": "string",
+          "description": "Table name (should exist)"
+        },
+        "data": { "type": "string", "description": "Success message" }
+      },
+      "required": ["db", "table", "data"]
+    },
+    "deleteTable": {
+      "properties": {
+        "db": { "type": "string", "description": "DB name (should exist)" },
+        "table": {
+          "type": "string",
+          "description": "Table name (should exist)"
+        },
+        "data": { "type": "string", "description": "Success message" }
+      },
+      "required": ["db", "table", "data"]
+    },
+    "putTable": {
+      "properties": {
+        "db": { "type": "string", "description": "DB name (should exist)" },
+        "table": {
+          "type": "string",
+          "description": "Table name (should be unique)"
+        },
+        "data": { "type": "string", "description": "Success message" }
+      },
+      "required": ["db", "table", "data"]
+    }
+  }
+}

@@ -65,7 +65,7 @@ const put = (db, table, data) => {
   if (!fs.updateTable(db, table, [...dataInDB, data]))
     throw Error(`Failed to write to table "${table}".`);
 
-  return "Item recorded successfully.";
+  return "Item created successfully.";
 };
 
 const update = (db, table, data) => {

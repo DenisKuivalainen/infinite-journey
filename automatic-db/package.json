@@ -5,19 +5,18 @@
   "main": "index.js",
   "scripts": {
     "pretty": "prettier --write .",
-    "docs:template": "git clone https://github.com/jodacame/apidocjs-template-dark-Slate-Inspiration-.git",
-    "docs": "apidoc -i lib -o build -t apidocjs-template-dark-Slate-Inspiration-/template",
+    "docs": "apidoc -i lib -o build",
     "init-db": "node init.js",
-    "dev:nodemon": "nodemon server.js",
-    "dev": "rm -rf apidocjs-template-dark-Slate-Inspiration- && git clone https://github.com/jodacame/apidocjs-template-dark-Slate-Inspiration-.git && apidoc -i lib -o build -t apidocjs-template-dark-Slate-Inspiration-/template && node server.js",
-
-    "build": "rm -rf dist && rm -rf apidocjs-template-dark-Slate-Inspiration- && git clone https://github.com/jodacame/apidocjs-template-dark-Slate-Inspiration-.git && apidoc -i lib -o build -t apidocjs-template-dark-Slate-Inspiration-/template && webpack --mode development",
+    "dev:nodemon": "nodemon --watch lib --exec 'yarn dev'",
+    "dev": "apidoc -i lib -o build -c apidoc.json && node server.js",
+    "build": "node init.js && rm -rf dist && apidoc -i lib -o build -c apidoc.json && webpack --mode development",
     "start": "node ./dist/server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "apidoc": "0.25.0",
+    "apidoc": "0.51.1",
+    "apidoc-swagger": "^0.3.2",
     "body-parser": "^1.20.0",
     "dash-apidoc-template": "^1.0.0",
     "dotenv": "^16.0.1",
