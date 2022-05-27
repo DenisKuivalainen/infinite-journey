@@ -591,7 +591,7 @@ const getMapData = async () => {
                 )
                 .map(([s]) => s)[0]
             ];
-        return { ...t, size: _size };
+        return { ...t, size: _size, population };
       })
     ),
     holes,

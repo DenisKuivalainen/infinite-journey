@@ -25,7 +25,4 @@ automatic-web/yarn-error.log*
 
 automatic-server/game.json
 
-/automatic-db/database
-/automatic-db/apidocjs-template-dark-Slate-Inspiration-
-/automatic-db/dist
-/automatic-db/build
+database
