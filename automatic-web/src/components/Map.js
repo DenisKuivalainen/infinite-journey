@@ -53,7 +53,6 @@ export default ({ z = 10 }) => {
         filter={filter}
         style={{ width, height }}
       />
-      {/* <img src="/pictures/map.jpg" alt="map" style={{ width, height }} /> */}
     </div>
   );
 };
