@@ -1,24 +1,26 @@
 const axios = require("axios");
-require("dotenv").config("../.env")
+require("dotenv").config("../.env");
 
 const db = "automatic",
   url = "http://localhost:4000";
 
-  const headers = {
-    "x-api-key": process.env.API_KEY || ""
-  }
+const headers = {
+  "x-api-key": process.env.API_KEY || "",
+};
 
 const getPlayers = () =>
   axios({
     method: "post",
-    url: `${url}/${db}/players/get`,headers
+    url: `${url}/${db}/players/get`,
+    headers,
   }).then((res) => res?.data?.data);
 
 const updatePlayer = async (data) => {
   await axios({
     method: "post",
     url: `${url}/${db}/players/update`,
-    data,headers
+    data,
+    headers,
   });
 };
 
@@ -26,28 +28,32 @@ const getTime = () =>
   axios({
     method: "post",
     url: `${url}/${db}/map/get`,
-    data: { id: "time" },headers
+    data: { id: "time" },
+    headers,
   }).then((res) => res?.data?.data?.[0]);
 
 const updateTime = async (data) => {
   await axios({
     method: "post",
     url: `${url}/${db}/map/update`,
-    data: { ...data, id: "time" },headers
+    data: { ...data, id: "time" },
+    headers,
   });
 };
 
 const getTowns = () =>
   axios({
     method: "post",
-    url: `${url}/${db}/towns/get`,headers
+    url: `${url}/${db}/towns/get`,
+    headers,
   }).then((res) => res?.data?.data);
 
 const updateTown = async (data) => {
   await axios({
     method: "post",
     url: `${url}/${db}/towns/update`,
-    data,headers
+    data,
+    headers,
   });
 };
 

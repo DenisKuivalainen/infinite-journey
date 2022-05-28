@@ -52,10 +52,11 @@ const recordMatixes = (s) => (arr) => {
   saveToFile(getSurface(arr), `surface/${s}`);
 };
 
-const generate = (s) => pixels(`${__dirname}/../pictures/${s}.png`)
-  .then(getSurfaceMatrix)
-  .then(recordMatixes(s));
+const generate = (s) =>
+  pixels(`${__dirname}/../pictures/${s}.png`)
+    .then(getSurfaceMatrix)
+    .then(recordMatixes(s));
 
 for (let i = 1; i < 20; i++) {
-  generate(i)
+  generate(i);
 }

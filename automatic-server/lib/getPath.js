@@ -1,8 +1,8 @@
 const pf = require("pathfinding");
-const matrix = require("../matrix/pathfinding.json");
+const { getPathfinding } = require("./getMatrix");
 
-const getPath = ([a, b], [c, d]) => {
-  const grid = new pf.Grid(matrix);
+const getPath = async ([a, b], [c, d]) => {
+  const grid = new pf.Grid(await getPathfinding());
 
   const finder = new pf.AStarFinder({
     allowDiagonal: true,

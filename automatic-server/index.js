@@ -1,8 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const { updateGame, getGameData } = require("./lib/updateGame");
-const surface = require("./matrix/surface.json");
 const { getMapData } = require("./lib/map");
+const { getSurface } = require("./lib/getMatrix");
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 const loopUpdateGame = async () => {
@@ -17,8 +17,8 @@ const app = express();
 const port = 8080;
 app.use(cors());
 
-app.get("/surface", (req, res) => {
-  res.send(surface);
+app.get("/surface", async (req, res) => {
+  res.send(await getSurface());
 });
 
 app.get("/map", async (req, res) => {

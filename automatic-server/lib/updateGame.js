@@ -1,14 +1,43 @@
 const getPath = require("./getPath");
 const log = require("./log");
 const { getNewDestination } = require("./map");
-const surface = require("../matrix/surface.json");
 const cache = require("memory-cache");
 const db = require("./accessDB");
 const moment = require("moment");
 const { getSeason, getDeathRatio, getBirthRatio } = require("./season");
+const { getSurface, getPathfinding } = require("./getMatrix");
+const getters = require("./getters");
 
-const isResting = (time, from, to, [x, y]) =>
-  (time < from || time > to) && surface[y][x] === 0;
+const isResting = async (time, from, to, [x, y]) => {
+  const surface = await getSurface();
+  return (time < from || time > to) && surface[y][x] === 0;
+};
+
+const updatePathsOnSeasonChange = async () => {
+  const pathfinding = await getPathfinding();
+  const players = await getters.getPlayers();
+  let newPlayers = [];
+
+  for (i in players) {
+    const p = players[i];
+    const { position, destination, actions } = p;
+
+    if (pathfinding[position[1]][position[0]] === 1) {
+      newPlayers.push(p);
+    } else if (actions.length) {
+      newPlayers.push(p);
+    } else {
+      const path = await getPath(position, destination);
+      newPlayers.push({ ...p, actions: path });
+    }
+  }
+
+  for (const j in newPlayers) {
+    await db.updatePlayer(newPlayers[j]);
+  }
+
+  cache.put("players", newPlayers);
+};
 
 const updateTime = async () => {
   const now = await db.getTime();
@@ -30,13 +59,19 @@ const updateTime = async () => {
     _now.time++;
   }
 
-  if(_now.time % 10 === 0) {
-    await changePopulation(_now.day)
+  if (_now.time % 10 === 0) {
+    await changePopulation(_now.day);
   }
 
   _now.timestamp = Date.now();
 
-  _now.season = getSeason(_now.day);
+  const oldSeason = _now.season;
+  const newSeason = getSeason(_now.day);
+  _now.season = newSeason;
+
+  if (oldSeason !== newSeason) {
+    await updatePathsOnSeasonChange();
+  }
 
   await db.updateTime(_now);
 
@@ -79,8 +114,8 @@ const changePopulation = async (day) => {
 };
 
 const updatePlayes = async () => {
-  const { time } = await db.getTime();
-  const players = await db.getPlayers();
+  const { time } = await getters.getTime();
+  const players = await getters.getPlayers();
 
   let updatedPlayers = [];
   for (const i in players) {
@@ -91,7 +126,7 @@ const updatePlayes = async () => {
 
     if (!actions.length) {
       // Create new path
-      const path = getPath(
+      const path = await getPath(
         position,
         await getNewDestination(position).then((res) => res.location)
       );
@@ -103,11 +138,12 @@ const updatePlayes = async () => {
         ],
         destination: path[path.length - 1],
       });
-    } else if (isResting(time, from, to, position)) {
+    } else if (await isResting(time, from, to, position)) {
       // Rest
       updatedPlayers.push(data);
     } else {
       // Travel
+      const surface = await getSurface();
       const distance = surface[position[1]][position[0]] === 0 ? 1 : 5;
       const newActions = actions.slice(distance);
 
@@ -162,15 +198,17 @@ const getDate = (day) => {
 };
 
 const getGameData = async () => {
-  const _getPlayers = require('./getters').getPlayers;
+  const _getPlayers = getters.getPlayers;
 
-  const _getTime = require("./getters").getTime;
+  const _getTime = getters.getTime;
 
   const players = await _getPlayers();
   const { time, timestamp, year, day, season } = await _getTime();
   const now = Date.now();
 
   const { date, month } = getDate(day);
+
+  const surface = await getSurface();
 
   return {
     time: getTime(time, timestamp, now),
@@ -181,16 +219,13 @@ const getGameData = async () => {
     timestamp: now,
     players: players.map((data) => {
       const position = data.position;
-      const action = isResting(
-        time,
-        data.active[0],
-        data.active[1],
-        data.position
-      )
-        ? actions.REST
-        : surface[data.position[1]][data.position[0]] === 0
-        ? actions.WALK
-        : actions.SWIM;
+      const action =
+        (time < data.active[0] || time > data.active[1]) &&
+        surface[data.position[1]][data.position[0]] === 0
+          ? actions.REST
+          : surface[data.position[1]][data.position[0]] === 0
+          ? actions.WALK
+          : actions.SWIM;
 
       return {
         position,
@@ -205,7 +240,7 @@ const getGameData = async () => {
 };
 
 const getCurrentTime = async () => {
-  const { time, timestamp } = db.getTime();
+  const { time, timestamp } = await getters.getTime();
 
   return getTime(time, timestamp);
 };
