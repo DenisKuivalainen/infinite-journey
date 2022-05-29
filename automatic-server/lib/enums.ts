@@ -1,0 +1,47 @@
+export enum TOWN_AREAS {
+  FIELD = "FIELD",
+  SEASIDE = "SEASIDE",
+  MOUNTAINS = "MOUNTAINS",
+  LAKE = "LAKE",
+  ISLAND = "ISLAND",
+}
+
+export enum TOWN_SIZE {
+  TOWER = "TOWER",
+  SMALL = "SMALL",
+  MEDIUM = "MEDIUM",
+  BIG = "BIG",
+}
+
+export const TOWN_POPULATION = {
+  TOWER: [10, 50],
+  SMALL: [100, 500],
+  MEDIUM: [500, 1500],
+  BIG: [1500, 3000],
+};
+
+export enum COUNTRY_ID {
+  SCULL = "SCULL",
+  ISLANDS_LEFT = "ISLANDS_LEFT",
+  ISLANDS_RIGHT = "ISLANDS_RIGHT",
+  MAIN_LEFT = "MAIN_LEFT",
+  MAIN_MIDDLE = "MAIN_MIDDLE",
+  MAIN_RIGHT_TOP = "MAIN_RIGHT_TOP",
+  MAIN_RIGHT_BOTTOM = "MAIN_RIGHT_BOTTOM",
+}
+
+export enum COUNTRY_NAME {
+  SCULL = "Uclen",
+  ISLANDS_LEFT = "Lafron",
+  ISLANDS_RIGHT = "Yesnuece",
+  MAIN_LEFT = "Etren",
+  MAIN_MIDDLE = "Traria",
+  MAIN_RIGHT_TOP = "Dedrijan",
+  MAIN_RIGHT_BOTTOM = "Lagrad",
+}
+
+export enum PLAYER_ACTIONS {
+  WALK = "WALK",
+  SWIM = "SWIM",
+  REST = "REST",
+}

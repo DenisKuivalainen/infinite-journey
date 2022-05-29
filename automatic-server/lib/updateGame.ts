@@ -1,14 +1,24 @@
-const getPath = require("./getPath");
-const log = require("./log");
-const { getNewDestination } = require("./map");
-const cache = require("memory-cache");
-const db = require("./accessDB");
-const moment = require("moment");
-const { getSeason, getDeathRatio, getBirthRatio } = require("./season");
-const { getSurface, getPathfinding } = require("./getMatrix");
-const getters = require("./getters");
+import getPath from "./getPath";
+import map from "./map";
+import cache from "memory-cache";
+import db from "./accessDB";
+import moment from "moment";
+import season from "./season";
+import matrix from "./getMatrix";
+import getters from "./getters";
+import { PLAYER_ACTIONS } from "./enums";
+import { DbPlayer } from "./types";
 
-const isResting = async (time, from, to, [x, y]) => {
+const { getNewDestination } = map;
+const { getSeason, getDeathRatio, getBirthRatio } = season;
+const { getSurface, getPathfinding } = matrix;
+
+const isResting = async (
+  time: number,
+  from: number,
+  to: number,
+  [x, y]: [number, number]
+) => {
   const surface = await getSurface();
   return (time < from || time > to) && surface[y][x] === 0;
 };
@@ -16,9 +26,9 @@ const isResting = async (time, from, to, [x, y]) => {
 const updatePathsOnSeasonChange = async () => {
   const pathfinding = await getPathfinding();
   const players = await getters.getPlayers();
-  let newPlayers = [];
+  let newPlayers: DbPlayer[] = [];
 
-  for (i in players) {
+  for (const i in players) {
     const p = players[i];
     const { position, destination, actions } = p;
 
@@ -78,20 +88,20 @@ const updateTime = async () => {
   cache.put("time", JSON.stringify(_now));
 };
 
-const changePopulation = async (day) => {
-  const randomIntFromInterval = (min, max) => {
+const changePopulation = async (day: number) => {
+  const randomIntFromInterval = (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min) + min);
   };
 
   const towns = await db.getTowns();
 
   const newTowns = towns.map((t) => {
-    const deaths =
-      randomIntFromInterval(...getDeathRatio(day)) / (366 * 12 * 1000);
-    const births =
-      randomIntFromInterval(...getBirthRatio(day)) / (366 * 12 * 1000);
+    const [dMin, dMax] = getDeathRatio(day);
+    const [bMin, bMax] = getBirthRatio(day);
+    const deaths = randomIntFromInterval(dMin, dMax) / (366 * 12 * 1000);
+    const births = randomIntFromInterval(bMin, bMax) / (366 * 12 * 1000);
 
-    if (t.tower) {
+    if (t.is_tower) {
       return {
         ...t,
         population:
@@ -168,17 +178,9 @@ const updateGame = async () => {
   await updatePlayes();
 };
 
-const actions = {
-  WALK: "WALK",
-  SWIM: "SWIM",
-  REST: "REST",
-};
-
-const getTime = (time, timestamp, now) => {
+const getTime = (time: number, timestamp: number, now: number) => {
   const msPassed = now - timestamp;
-  log(now, timestamp);
   const minsPassed = msPassed / 60000;
-  log(minsPassed);
   const totalMins = Math.floor(((time + minsPassed) * 24 * 60) / 120);
   const hours = Math.floor(totalMins / 60);
   const minutes = Math.floor(totalMins - hours * 60);
@@ -186,7 +188,7 @@ const getTime = (time, timestamp, now) => {
   return { hours, minutes };
 };
 
-const getDate = (day) => {
+const getDate = (day: number) => {
   const [date, month] = moment(`01-01-2020`, "DD-MM-YYYY")
     .add(day, "days")
     .format("DD-MM")
@@ -222,10 +224,10 @@ const getGameData = async () => {
       const action =
         (time < data.active[0] || time > data.active[1]) &&
         surface[data.position[1]][data.position[0]] === 0
-          ? actions.REST
+          ? PLAYER_ACTIONS.REST
           : surface[data.position[1]][data.position[0]] === 0
-          ? actions.WALK
-          : actions.SWIM;
+          ? PLAYER_ACTIONS.WALK
+          : PLAYER_ACTIONS.SWIM;
 
       return {
         position,
@@ -242,13 +244,13 @@ const getGameData = async () => {
 const getCurrentTime = async () => {
   const { time, timestamp } = await getters.getTime();
 
-  return getTime(time, timestamp);
+  return getTime(time, timestamp, Date.now());
 };
 
-module.exports = {
+export default {
   updateGame,
   getGameData,
   getTime,
   getCurrentTime,
-  actions,
+  actions: PLAYER_ACTIONS,
 };

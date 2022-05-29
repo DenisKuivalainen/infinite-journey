@@ -1,11 +1,13 @@
-const axios = require("axios");
-require("dotenv").config("../.env");
+import { DbPlayer, DbTime, DbTown, KeysOf } from "./types";
+import {v4 as uuid} from "uuid"
+import axios from "axios";
+import env from "./env";
 
 const db = "automatic",
   url = "http://localhost:4000";
 
 const headers = {
-  "x-api-key": process.env.API_KEY || "",
+  "x-api-key": env("API_KEY")!,
 };
 
 const getPlayers = () =>
@@ -13,9 +15,33 @@ const getPlayers = () =>
     method: "post",
     url: `${url}/${db}/players/get`,
     headers,
-  }).then((res) => res?.data?.data);
+  }).then((res) => res?.data?.data as DbPlayer[]);
 
-const updatePlayer = async (data) => {
+  const putPlayer = async(data: Pick<DbPlayer, "name" | "color">) => {
+    const towns = await getTowns()
+
+    const activeStart = Math.floor(Math.random() * (119 - 105) + 105)
+    const restLength = Math.floor(Math.random() * (50 - 30) + 30)
+
+    const playerData:DbPlayer = {
+      ...data,
+      id: uuid(),
+      actions: [],
+      position: towns[Math.floor(Math.random() * towns.length)].location,
+      destination: [0, 0],
+      active: [activeStart, activeStart + restLength - 120],
+      km: 0
+    }
+
+    await axios({
+      method: "put",
+      url: `${url}/${db}/players/put`,
+      data: playerData,
+      headers,
+    });
+  }
+
+const updatePlayer = async (data: KeysOf<DbPlayer>) => {
   await axios({
     method: "post",
     url: `${url}/${db}/players/update`,
@@ -30,9 +56,9 @@ const getTime = () =>
     url: `${url}/${db}/map/get`,
     data: { id: "time" },
     headers,
-  }).then((res) => res?.data?.data?.[0]);
+  }).then((res) => res?.data?.data?.[0] as DbTime);
 
-const updateTime = async (data) => {
+const updateTime = async (data: KeysOf<DbTime>) => {
   await axios({
     method: "post",
     url: `${url}/${db}/map/update`,
@@ -46,9 +72,9 @@ const getTowns = () =>
     method: "post",
     url: `${url}/${db}/towns/get`,
     headers,
-  }).then((res) => res?.data?.data);
+  }).then((res) => res?.data?.data as DbTown[]);
 
-const updateTown = async (data) => {
+const updateTown = async (data: KeysOf<DbTown>) => {
   await axios({
     method: "post",
     url: `${url}/${db}/towns/update`,
@@ -57,8 +83,9 @@ const updateTown = async (data) => {
   });
 };
 
-module.exports = {
+export default {
   getPlayers,
+  putPlayer,
   updatePlayer,
   getTowns,
   updateTown,

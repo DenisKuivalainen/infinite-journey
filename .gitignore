@@ -23,6 +23,6 @@ automatic-web/yarn-debug.log*
 automatic-web/yarn-error.log*
 
 
-automatic-server/game.json
+automatic-server/dist
 
 database

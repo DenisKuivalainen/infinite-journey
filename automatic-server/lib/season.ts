@@ -1,4 +1,4 @@
-const getSeasonNumber = (day) => {
+const getSeasonNumber = (day: number) => {
   let d = 0;
 
   if (day <= 15) {
@@ -22,18 +22,18 @@ const getSeasonNumber = (day) => {
   }
 };
 
-const seasonBirth = (n) => {
+const seasonBirth = (n: number) => {
   const b = 10 + n;
   return [b - 10, b];
 };
 
-const seasonDeath = (n) => {
+const seasonDeath = (n: number) => {
   const d = 19 - n / 2;
   return [d - 5, d + 5];
 };
 
-module.exports = {
-  getSeason: (day) => getSeasonNumber(day),
-  getBirthRatio: (day) => seasonBirth(getSeasonNumber(day)),
-  getDeathRatio: (day) => seasonDeath(getSeasonNumber(day)),
+export default {
+  getSeason: (day: number) => getSeasonNumber(day),
+  getBirthRatio: (day: number) => seasonBirth(getSeasonNumber(day)),
+  getDeathRatio: (day: number) => seasonDeath(getSeasonNumber(day)),
 };
