@@ -1,13 +1,12 @@
-import { DbPlayer, DbTime, DbTown, KeysOf } from "./types";
-import {v4 as uuid} from "uuid"
+import { DbPlayer, DbTime, DbTown, DbTraveler, KeysOf } from "./types";
+import { v4 as uuid } from "uuid";
 import axios from "axios";
-import env from "./env";
 
 const db = "automatic",
   url = "http://localhost:4000";
 
 const headers = {
-  "x-api-key": env("API_KEY")!,
+  "x-api-key": process.env.API_KEY!,
 };
 
 const getPlayers = () =>
@@ -17,29 +16,29 @@ const getPlayers = () =>
     headers,
   }).then((res) => res?.data?.data as DbPlayer[]);
 
-  const putPlayer = async(data: Pick<DbPlayer, "name" | "color">) => {
-    const towns = await getTowns()
+const putPlayer = async (data: Pick<DbPlayer, "name" | "color">) => {
+  const towns = await getTowns();
 
-    const activeStart = Math.floor(Math.random() * (119 - 105) + 105)
-    const restLength = Math.floor(Math.random() * (50 - 30) + 30)
+  const activeStart = Math.floor(Math.random() * (119 - 105) + 105);
+  const restLength = Math.floor(Math.random() * (50 - 30) + 30);
 
-    const playerData:DbPlayer = {
-      ...data,
-      id: uuid(),
-      actions: [],
-      position: towns[Math.floor(Math.random() * towns.length)].location,
-      destination: [0, 0],
-      active: [activeStart, activeStart + restLength - 120],
-      km: 0
-    }
+  const playerData: DbPlayer = {
+    ...data,
+    id: uuid(),
+    actions: [],
+    position: towns[Math.floor(Math.random() * towns.length)].location,
+    destination: [0, 0],
+    active: [activeStart + restLength - 120, activeStart],
+    km: 0,
+  };
 
-    await axios({
-      method: "put",
-      url: `${url}/${db}/players/put`,
-      data: playerData,
-      headers,
-    });
-  }
+  await axios({
+    method: "put",
+    url: `${url}/${db}/players/put`,
+    data: playerData,
+    headers,
+  });
+};
 
 const updatePlayer = async (data: KeysOf<DbPlayer>) => {
   await axios({
@@ -83,6 +82,42 @@ const updateTown = async (data: KeysOf<DbTown>) => {
   });
 };
 
+const getTravelers = () =>
+  axios({
+    method: "post",
+    url: `${url}/${db}/travelers/get`,
+    headers,
+  }).then((res) => res?.data?.data as DbTraveler[]);
+
+const putTraveler = async (data: DbTraveler) => {
+  await axios({
+    method: "put",
+    url: `${url}/${db}/travelers/put`,
+    data,
+    headers,
+  });
+};
+
+const updateTraveler = async (data: KeysOf<DbTraveler>) => {
+  await axios({
+    method: "post",
+    url: `${url}/${db}/travelers/update`,
+    data,
+    headers,
+  });
+};
+
+const deleteTraveler = async (id: string) => {
+  await axios({
+    method: "delete",
+    url: `${url}/${db}/travelers/delete`,
+    data: {
+      id,
+    },
+    headers,
+  });
+};
+
 export default {
   getPlayers,
   putPlayer,
@@ -91,6 +126,11 @@ export default {
   updateTown,
   getTime,
   updateTime,
+
+  getTravelers,
+  putTraveler,
+  updateTraveler,
+  deleteTraveler,
 };
 
 // const fill = async () => {

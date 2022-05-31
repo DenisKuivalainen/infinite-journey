@@ -30,4 +30,20 @@ export type DbTown = {
   is_tower: boolean;
 };
 
+export type DbTraveler = {
+  id: string;
+  origin: [number, number];
+  destination: [number, number];
+  position: [number, number];
+  active: [number, number];
+  actions: [number, number][];
+  name: string;
+  sex: SEX;
+};
+
+export enum SEX {
+  MALE = "MALE",
+  FEMALE = "FEMALE",
+}
+
 export type KeysOf<T> = { [K in keyof T]: T[K] };

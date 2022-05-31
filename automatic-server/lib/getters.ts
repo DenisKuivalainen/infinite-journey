@@ -1,4 +1,4 @@
-import { DbPlayer, DbTime, DbTown } from "./types";
+import { DbPlayer, DbTime, DbTown, DbTraveler } from "./types";
 import cache from "memory-cache";
 import db from "./accessDB";
 
@@ -32,8 +32,19 @@ const getTowns = async () => {
   }
 };
 
+const getTravelers = async () => {
+  const _t = cache.get("travelers") as DbTraveler[] | string;
+
+  if (_t && _t !== "null") {
+    return typeof _t === "string" ? (JSON.parse(_t) as DbTraveler[]) : _t;
+  } else {
+    return await db.getTravelers();
+  }
+};
+
 export default {
   getPlayers,
   getTime,
   getTowns,
+  getTravelers,
 };

@@ -25,7 +25,7 @@ export const useGameTime = () => {
 
   const loopGetTime = async () => {
     while (true) {
-      setTs(Date.now())
+      setTs(Date.now());
       await new Promise((res) => setTimeout(res, 1000));
     }
   };

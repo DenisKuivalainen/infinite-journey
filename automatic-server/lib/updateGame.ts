@@ -7,7 +7,10 @@ import season from "./season";
 import matrix from "./getMatrix";
 import getters from "./getters";
 import { PLAYER_ACTIONS } from "./enums";
-import { DbPlayer } from "./types";
+import { DbPlayer, DbTown, DbTraveler, KeysOf, SEX } from "./types";
+import { v4 as uuid } from "uuid";
+import { weightedRand } from "./random";
+import getName from "./getName";
 
 const { getNewDestination } = map;
 const { getSeason, getDeathRatio, getBirthRatio } = season;
@@ -47,6 +50,142 @@ const updatePathsOnSeasonChange = async () => {
   }
 
   cache.put("players", newPlayers);
+};
+
+const putTravelers = async () => {
+  const { time, season } = await getters.getTime();
+
+  if (time < 51 || time > 71) return;
+
+  const towns = await getters
+    .getTowns()
+    .then((t) => t.filter((_t) => !_t.is_tower));
+
+  const putTown = async (town: DbTown) => {
+    const r = Math.random()
+    const p = (town.population ) / (30000 * (20-season))
+    if (r >= p) return;
+
+    const townsToGo = Object.fromEntries(
+      towns
+        .filter((_t) => _t.id !== town.id)
+        .map((_t) => {
+          const sameCountry = town.country === _t.country ? 2000 : 500;
+
+          const d = Math.round(
+            Math.sqrt(
+              (town.location[0] - _t.location[0]) *
+                (town.location[0] - _t.location[0]) +
+                (town.location[1] - _t.location[1]) *
+                  (town.location[1] - _t.location[1])
+            )
+          );
+
+          const distance = (d > 200 ? 200 : d) * 2.5;
+
+          const area = town.area !== _t.area ? 250 : 0;
+
+          return [
+            _t.id,
+            Math.floor((_t.population + sameCountry + area - distance) / 500),
+          ];
+        })
+    );
+
+    const destination = towns.find(
+      (_t) => _t.id === weightedRand(townsToGo)
+    )?.location;
+    if (!destination) return;
+
+    const activeStart = Math.floor(Math.random() * (119 - 105) + 105);
+    const restLength = Math.floor(Math.random() * (50 - 30) + 30);
+    const sex = Math.random() < 0.5 ? SEX.MALE : SEX.FEMALE;
+
+    const data: DbTraveler = {
+      sex,
+      name: getName(sex, town.country),
+      id: uuid(),
+      origin: town.location,
+      destination,
+      active: [activeStart + restLength - 120, activeStart],
+      actions: await getPath(town.location, destination),
+      position: town.location,
+    };
+
+    await db.updateTown({
+      id: town.id,
+      population: town.population - 1,
+    } as KeysOf<DbTown>);
+    await db.putTraveler(data);
+  };
+
+  for (const t in towns) {
+    const town = towns[t];
+    await putTown(town);
+  }
+
+  cache.put("travelers", JSON.stringify(await db.getTravelers()));
+  cache.put("towns", JSON.stringify(await db.getTowns()));
+};
+
+const updateTravelers = async () => {
+  const { time } = await getters.getTime();
+  const travelers = await getters.getTravelers();
+
+  let updatedTravelers: DbTraveler[] = [];
+  for (const i in travelers) {
+    const traveler = travelers[i];
+
+    if (!traveler.actions.length) {
+      // Reached the destination
+
+      const town = await db.getTowns().then(
+        (ts) =>
+          ts.filter((t) => {
+            return (
+              t.location[0] === traveler.destination[0] &&
+              t.location[1] === traveler.destination[1]
+            );
+          })[0]
+      );
+
+      await db.updateTown({
+        id: town.id,
+        population: town.population + 1,
+      } as KeysOf<DbTown>);
+      await db.deleteTraveler(traveler.id);
+    } else if (
+      await isResting(
+        time,
+        traveler.active[0],
+        traveler.active[1],
+        traveler.position
+      )
+    ) {
+      // Rest
+      updatedTravelers.push(traveler);
+    } else {
+      // Travel
+      const surface = await getSurface();
+      const distance =
+        surface[traveler.position[1]][traveler.position[0]] === 0 ? 1 : 5;
+      const newActions = traveler.actions.slice(distance);
+
+      updatedTravelers.push({
+        ...traveler,
+        actions: newActions,
+        position: traveler.actions[0],
+      });
+    }
+  }
+
+  for (const j in updatedTravelers) {
+    await db.updateTraveler(updatedTravelers[j]);
+  }
+  if (travelers.length - updatedTravelers.length !== 0) {
+    cache.put("travelers", JSON.stringify(await db.getTravelers()));
+    cache.put("towns", JSON.stringify(await db.getTowns()));
+  }
 };
 
 const updateTime = async () => {
@@ -176,6 +315,8 @@ const updatePlayes = async () => {
 const updateGame = async () => {
   await updateTime();
   await updatePlayes();
+  await putTravelers();
+  await updateTravelers();
 };
 
 const getTime = (time: number, timestamp: number, now: number) => {
@@ -205,6 +346,7 @@ const getGameData = async () => {
   const _getTime = getters.getTime;
 
   const players = await _getPlayers();
+  const travelers = await getters.getTravelers();
   const { time, timestamp, year, day, season } = await _getTime();
   const now = Date.now();
 
@@ -230,12 +372,31 @@ const getGameData = async () => {
           : PLAYER_ACTIONS.SWIM;
 
       return {
+        id: data.id,
         position,
         action,
         traveled: data.km,
         name: data.name,
         destination: data.destination,
         color: data.color,
+      };
+    }),
+    travelers: travelers.map((data) => {
+      const position = data.position;
+      const action =
+        (time < data.active[0] || time > data.active[1]) &&
+        surface[data.position[1]][data.position[0]] === 0
+          ? PLAYER_ACTIONS.REST
+          : surface[data.position[1]][data.position[0]] === 0
+          ? PLAYER_ACTIONS.WALK
+          : PLAYER_ACTIONS.SWIM;
+
+      return {
+        id: data.id,
+        position,
+        action,
+        name: data.name,
+        destination: data.destination,
       };
     }),
   };

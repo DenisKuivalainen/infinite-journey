@@ -24,6 +24,7 @@ export default ({ z = 10 }) => {
         zIndex: z,
         backgroundColor: "black",
         color: "white",
+        opacity: 0,
         ...(loaded ? { opacity: 0, transition: "all 1s linear 1s" } : {}),
       }}
     >

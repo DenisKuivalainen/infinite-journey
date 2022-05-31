@@ -3,21 +3,22 @@ import { useGame } from "./GameProvider";
 export default ({ z = 10, showPopup }) => {
   const { game, width, height } = useGame();
 
-  const players = game.players.map((p) => {
+  const players = game.travelers.map((p) => {
     return (
       <>
         <div
+          key={p.id}
           style={{
+            position: "absolute",
             marginLeft: ((p.position[0] || 0) * width) / 1000,
             marginTop: ((p.position[1] || 0) * height) / 750,
-            color: p.color || "red",
-            transform: `translate(-${5}px, -${9}px)`,
-            fontSize: 10,
-            height: 10,
-            width: 10,
+            transform: `translate(-${3.5}px, -${6.3}px)`,
+            fontSize: 7,
+            height: 7,
+            width: 7,
           }}
         >
-          {p.action === "WALK" ? "🚶🏻" : p.action === "SWIM" ? "⛵️" : "⛺️"}
+          {p.action === "WALK" ? "🚶🏼‍♂️" : p.action === "SWIM" ? "🚣🏼‍♂️" : "⛺️"}
         </div>
       </>
     );
