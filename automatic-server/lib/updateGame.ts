@@ -55,15 +55,20 @@ const updatePathsOnSeasonChange = async () => {
 const putTravelers = async () => {
   const { time, season } = await getters.getTime();
 
-  if (time < 51 || time > 71) return;
+  if (
+    time < 51 ||
+    time > 71 ||
+    (await getters.getTravelers().then((ts) => ts.length >= 100))
+  )
+    return;
 
   const towns = await getters
     .getTowns()
     .then((t) => t.filter((_t) => !_t.is_tower));
 
   const putTown = async (town: DbTown) => {
-    const r = Math.random()
-    const p = (town.population ) / (30000 * (20-season))
+    const r = Math.random();
+    const p = town.population / (30000 * (20 - season));
     if (r >= p) return;
 
     const townsToGo = Object.fromEntries(

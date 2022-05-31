@@ -10,11 +10,10 @@ export default ({ z = 10 }) => {
 
   const [show, setShow] = useState(true);
   useEffect(() => {
-    console.log(show & loaded);
     if (show && loaded) setTimeout(() => setShow(false), 2000);
   }, [loaded]);
 
-  if (!show) return <></>;
+  // if (!show) return <></>;
   return (
     <div
       style={{
@@ -24,7 +23,6 @@ export default ({ z = 10 }) => {
         zIndex: z,
         backgroundColor: "black",
         color: "white",
-        opacity: 0,
         ...(loaded ? { opacity: 0, transition: "all 1s linear 1s" } : {}),
       }}
     >

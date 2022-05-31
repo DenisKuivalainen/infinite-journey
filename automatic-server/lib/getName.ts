@@ -3082,7 +3082,7 @@ const getName = (sex: SEX): GetName => ({
       nm3[(Math.random() * nm3.length) | 0] +
       nm4[(Math.random() * nm4.length) | 0];
 
-    if (sex === SEX.MALE) {
+    if (sex === SEX.FEMALE) {
       return nm2[(Math.random() * nm2.length) | 0] + " " + lName;
     } else {
       return nm5[(Math.random() * nm5.length) | 0] + " " + lName;

@@ -57,8 +57,8 @@ export default ({ z = 10 }) => {
       setOpacity(0);
       await delay(11000);
       setOpacity(1);
-    } 
-    setImages([_season])
+    }
+    setImages([_season]);
   };
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default ({ z = 10 }) => {
         const style = {
           width,
           height,
-          transition: "all 10s linear",
+          transition: images.length === 1 ? "" : "all 10s linear",
           ...(i === 0 && images.length === 2 ? {} : { opacity: opacity }),
           position: "absolute",
         };
