@@ -52,14 +52,14 @@ const getPathfindingMatrix = (arr: number[][]): number[][] =>
 
 const _getSurface = async () => {
   const { season } = await getters.getTime();
-  return await pixels(`${__dirname}/../../pictures/${season}.png`)
+  return await pixels(`${process.env.ROOT_DIR}/pictures/${season}.png`)
     .then(getSurfaceMatrix)
     .then(getSurface);
 };
 
 const getPathfinding = async () => {
   const { season } = await getters.getTime();
-  return await pixels(`${__dirname}/../../pictures/${season}.png`)
+  return await pixels(`${process.env.ROOT_DIR}/pictures/${season}.png`)
     .then(getSurfaceMatrix)
     .then(getPathfindingMatrix);
 };

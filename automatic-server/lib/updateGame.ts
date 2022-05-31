@@ -11,6 +11,7 @@ import { DbPlayer, DbTown, DbTraveler, KeysOf, SEX } from "./types";
 import { v4 as uuid } from "uuid";
 import { weightedRand } from "./random";
 import getName from "./getName";
+import { shuffleArray } from "./helpers";
 
 const { getNewDestination } = map;
 const { getSeason, getDeathRatio, getBirthRatio } = season;
@@ -64,7 +65,7 @@ const putTravelers = async () => {
 
   const towns = await getters
     .getTowns()
-    .then((t) => t.filter((_t) => !_t.is_tower));
+    .then((t) => t.filter((_t) => !_t.is_tower)).then(ts => shuffleArray<DbTown>(ts));
 
   const putTown = async (town: DbTown) => {
     const r = Math.random();

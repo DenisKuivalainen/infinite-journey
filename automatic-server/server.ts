@@ -6,24 +6,18 @@ import matrix from "./lib/getMatrix";
 import bodyParser from "body-parser";
 import db from "./lib/accessDB";
 
-const { updateGame, getGameData } = game;
+const {  getGameData } = game;
 const { getMapData } = map;
 const { getSurface } = matrix;
 const { putPlayer } = db;
-
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-const loopUpdateGame = async () => {
-  while (true) {
-    updateGame();
-    await delay(60000);
-  }
-};
 
 const app: Express = express();
 
 const port = 8080;
 app.use(cors());
 app.use(bodyParser.json());
+
+require("./server/schedule")
 
 app.put("/user", async (req: Request, res: Response) => {
   const isHexColor = (hex: string) =>
@@ -58,13 +52,9 @@ app.get("/map", async (req: Request, res: Response) => {
 });
 
 app.get("/", async (req: Request, res: Response) => {
-  await delay(1000);
-
   res.send(await getGameData());
 });
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
-
-loopUpdateGame();
