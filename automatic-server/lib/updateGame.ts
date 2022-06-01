@@ -1,12 +1,11 @@
 import getPath from "./getPath";
 import map from "./map";
-import cache from "memory-cache";
 import db from "./accessDB";
 import moment from "moment";
 import season from "./season";
 import matrix from "./getMatrix";
 import getters from "./getters";
-import { PLAYER_ACTIONS } from "./enums";
+import { PLAYER_ACTIONS, TOWN_POPULATION } from "./enums";
 import { DbPlayer, DbTown, DbTraveler, KeysOf, SEX } from "./types";
 import { v4 as uuid } from "uuid";
 import { weightedRand } from "./random";
@@ -17,13 +16,12 @@ const { getNewDestination } = map;
 const { getSeason, getDeathRatio, getBirthRatio } = season;
 const { getSurface, getPathfinding } = matrix;
 
-const isResting = async (
+const isResting = (surface: number[][]) => async (
   time: number,
   from: number,
   to: number,
   [x, y]: [number, number]
 ) => {
-  const surface = await getSurface();
   return (time < from || time > to) && surface[y][x] === 0;
 };
 
@@ -49,8 +47,6 @@ const updatePathsOnSeasonChange = async () => {
   for (const j in newPlayers) {
     await db.updatePlayer(newPlayers[j]);
   }
-
-  cache.put("players", newPlayers);
 };
 
 const putTravelers = async () => {
@@ -68,8 +64,10 @@ const putTravelers = async () => {
     .then((t) => t.filter((_t) => !_t.is_tower)).then(ts => shuffleArray<DbTown>(ts));
 
   const putTown = async (town: DbTown) => {
+    if(town.population <= TOWN_POPULATION.SMALL[0] * 1.05) return
+
     const r = Math.random();
-    const p = town.population / (30000 * (20 - season));
+    const p = town.population * (town.population > TOWN_POPULATION.BIG[1] * 0.95 ? 2 : 1) / (30000 * (20 - season));
     if (r >= p) return;
 
     const townsToGo = Object.fromEntries(
@@ -129,14 +127,12 @@ const putTravelers = async () => {
     const town = towns[t];
     await putTown(town);
   }
-
-  cache.put("travelers", JSON.stringify(await db.getTravelers()));
-  cache.put("towns", JSON.stringify(await db.getTowns()));
 };
 
 const updateTravelers = async () => {
   const { time } = await getters.getTime();
   const travelers = await getters.getTravelers();
+  const surface = await getSurface();
 
   let updatedTravelers: DbTraveler[] = [];
   for (const i in travelers) {
@@ -161,7 +157,7 @@ const updateTravelers = async () => {
       } as KeysOf<DbTown>);
       await db.deleteTraveler(traveler.id);
     } else if (
-      await isResting(
+      await isResting(surface)(
         time,
         traveler.active[0],
         traveler.active[1],
@@ -187,10 +183,6 @@ const updateTravelers = async () => {
 
   for (const j in updatedTravelers) {
     await db.updateTraveler(updatedTravelers[j]);
-  }
-  if (travelers.length - updatedTravelers.length !== 0) {
-    cache.put("travelers", JSON.stringify(await db.getTravelers()));
-    cache.put("towns", JSON.stringify(await db.getTowns()));
   }
 };
 
@@ -229,8 +221,6 @@ const updateTime = async () => {
   }
 
   await db.updateTime(_now);
-
-  cache.put("time", JSON.stringify(_now));
 };
 
 const changePopulation = async (day: number) => {
@@ -265,12 +255,12 @@ const changePopulation = async (day: number) => {
   for (const i in newTowns) {
     await db.updateTown(newTowns[i]);
   }
-  cache.put("towns", JSON.stringify(newTowns));
 };
 
 const updatePlayes = async () => {
   const { time } = await getters.getTime();
   const players = await getters.getPlayers();
+  const surface = await getSurface()
 
   let updatedPlayers = [];
   for (const i in players) {
@@ -293,7 +283,7 @@ const updatePlayes = async () => {
         ],
         destination: path[path.length - 1],
       });
-    } else if (await isResting(time, from, to, position)) {
+    } else if (await isResting(surface)(time, from, to, position)) {
       // Rest
       updatedPlayers.push(data);
     } else {
@@ -314,8 +304,6 @@ const updatePlayes = async () => {
   for (const j in updatedPlayers) {
     await db.updatePlayer(updatedPlayers[j]);
   }
-
-  cache.put("players", updatedPlayers);
 };
 
 const updateGame = async () => {

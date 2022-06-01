@@ -26,13 +26,13 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/node-cron": "^3.0.1",
-    "@types/uuid": "^8.3.4",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/memory-cache": "^0.2.2",
     "@types/node": "^17.0.36",
+    "@types/node-cron": "^3.0.1",
     "@types/pathfinding": "^0.0.5",
-    "@types/ramda": "^0.28.13"
+    "@types/ramda": "^0.28.13",
+    "@types/uuid": "^8.3.4"
   }
 }
