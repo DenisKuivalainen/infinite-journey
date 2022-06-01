@@ -18,10 +18,10 @@ export default () => {
         ? [
             <Map z={0} />,
             <Clock z={5} />,
-            <Players z={400} />,
-            <Travelers z={100} />,
+            <Players z={40} />,
+            <Travelers z={15} />,
             <Buildings.Towns z={10} />,
-            <Info z={500} />,
+            <Info z={50} />,
           ]
         : []}
     </GameWrapper>
