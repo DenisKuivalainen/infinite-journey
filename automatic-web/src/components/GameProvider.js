@@ -8,7 +8,7 @@ const GameContext = createContext({});
 export const GameProvider = ({ children }) => {
   const url =
     new URL(document.location).searchParams.get("url") ||
-    "http://192.168.0.50:8080";
+    `${window.location.protocol}//${window.locaion.host}`;
 
   const [gameDataLoaded, setGameDataLoaded] = useState(false);
   const [gameData, setGameData] = useState({});
