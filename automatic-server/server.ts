@@ -13,7 +13,7 @@ const { putPlayer } = db;
 
 const app: Express = express();
 
-const port = 8080;
+const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -51,9 +51,11 @@ app.get("/map", async (req: Request, res: Response) => {
   res.send(map);
 });
 
-app.get("/", async (req: Request, res: Response) => {
+app.get("/data", async (req: Request, res: Response) => {
   res.send(await getGameData());
 });
+
+app.use(express.static(`${process.env.ROOT_DIR}/../automatic-web/build`));
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);

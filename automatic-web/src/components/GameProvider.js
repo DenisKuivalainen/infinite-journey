@@ -8,7 +8,7 @@ const GameContext = createContext({});
 export const GameProvider = ({ children }) => {
   const url =
     new URL(document.location).searchParams.get("url") ||
-    `${window.location.protocol}//${window.locaion.host}`;
+    "";
 
   const [gameDataLoaded, setGameDataLoaded] = useState(false);
   const [gameData, setGameData] = useState({});
@@ -24,7 +24,7 @@ export const GameProvider = ({ children }) => {
       setMapDataLoaded(true);
     });
 
-    axios.get(url).then((res) => {
+    axios.get(`${url}/data`).then((res) => {
       setGameData(res.data);
       setGameDataLoaded(true);
     });
@@ -32,7 +32,7 @@ export const GameProvider = ({ children }) => {
 
   const loopGetData = async () => {
     while (true) {
-      axios.get(url).then((res) => setGameData(res.data));
+      axios.get(`${url}/data`).then((res) => setGameData(res.data));
       await new Promise((res) => setTimeout(res, 60000));
     }
   };

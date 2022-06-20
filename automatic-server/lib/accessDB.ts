@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 import axios from "axios";
 
 const db = "automatic",
-  url = "http://localhost:4000";
+  url = "http://192.168.0.100:4000";
 
 const headers = {
   "x-api-key": process.env.API_KEY!,
