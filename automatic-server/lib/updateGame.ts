@@ -67,7 +67,7 @@ const putTravelers = async () => {
     if(town.population <= TOWN_POPULATION.SMALL[0] * 1.05) return
 
     const r = Math.random();
-    const p = town.population * (town.population > TOWN_POPULATION.BIG[1] * 0.95 ? 2 : 1) / (30000 * (20 - season));
+    const p = town.population * (town.population > TOWN_POPULATION.BIG[1] * 0.95 ? 2 : 1) / (100000 * (20 - season));
     if (r >= p) return;
 
     const townsToGo = Object.fromEntries(
@@ -168,7 +168,6 @@ const updateTravelers = async () => {
       updatedTravelers.push(traveler);
     } else {
       // Travel
-      const surface = await getSurface();
       const distance =
         surface[traveler.position[1]][traveler.position[0]] === 0 ? 1 : 5;
       const newActions = traveler.actions.slice(distance);
